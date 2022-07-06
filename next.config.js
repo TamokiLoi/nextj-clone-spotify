@@ -7,7 +7,7 @@ const nextConfig = {
   },
   optimizeFonts: false,
   images: {
-    domains: ["links.papareact.com", "avatars.dicebear.com"],
+    domains: ["links.papareact.com", "avatars.dicebear.com", "i.scdn.co", "mosaic.scdn.co"],
   },
 };
 

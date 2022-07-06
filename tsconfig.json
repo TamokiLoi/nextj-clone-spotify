@@ -25,7 +25,8 @@
       "@@utils": ["./src/utils/index"],
       "@@models": ["./src/models/index"],
       "@@constants": ["./src/constants/index"],
-      "@@atoms": ["./src/atoms/index"]
+      "@@atoms": ["./src/atoms/index"],
+      "@@lib": ["./src/lib/index"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
