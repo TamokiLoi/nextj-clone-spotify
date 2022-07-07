@@ -16,9 +16,6 @@ function Song({ track, order }: Props) {
     const [currentTrackId, setCurrentTrackId] = useRecoilState<any>(trackIdState);
     const [currentTrack, setTrack] = useRecoilState<any>(trackState);
     const [isPlaying, setIsPlaying] = useRecoilState<boolean>(isPlayingState);
-    const [player, setPlayer] = useState(undefined);
-    const [device, setDevice] = useState<any>(null);
-    const [devices, setDevices] = useState<[]>([]);
 
     const playSong = async () => {
         setTrack(track);

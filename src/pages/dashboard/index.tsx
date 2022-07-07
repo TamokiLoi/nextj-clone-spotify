@@ -1,4 +1,4 @@
-import { isPlayerStartState } from '@@atoms';
+import { deviceIdState, isPlayerStartState } from '@@atoms';
 import { Center, Meta, Player, Sidebar } from '@@components';
 import { useSpotify } from '@@hooks';
 import type { GetServerSideProps } from 'next';
@@ -15,19 +15,9 @@ const Dashboard = ({ session }: Props) => {
     const spotifyApi = useSpotify();
 
     const [isplayerStart, setIsPlayerStart] = useRecoilState<any>(isPlayerStartState);
+    const [deviceId, setDeviceId] = useRecoilState<any>(deviceIdState);
 
     useEffect(() => {
-        // spotifyApi.getMyDevices().then((data) => {
-        //     console.log(data, 'data')
-        //     if (data?.body?.devices.length > 1) {
-        //         const index = data?.body?.devices.findIndex(item => item.name == 'Web Playback SDK');
-        //         if (index != -1) {
-                    
-        //         } else {
-                    
-        //         }
-        //     }
-        // })
         if (window) {
             const script = document.createElement("script");
             script.src = "https://sdk.scdn.co/spotify-player.js";
@@ -46,6 +36,7 @@ const Dashboard = ({ session }: Props) => {
                 player.addListener('ready', ({ device_id }: any) => {
                     console.log('Ready with Device ID', device_id);
                     setIsPlayerStart(true);
+                    setDeviceId(device_id);
                 });
 
                 player.addListener('not_ready', ({ device_id }: any) => {

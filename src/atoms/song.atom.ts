@@ -19,3 +19,8 @@ export const isPlayerStartState: any = atom({
     key: 'isPlayerStartAtom',
     default: false
 })
+
+export const deviceIdState: any = atom({
+    key: 'deviceIdAtom',
+    default: null
+})

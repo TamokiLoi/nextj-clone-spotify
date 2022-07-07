@@ -1,4 +1,4 @@
-import { isPlayingState, trackIdState, trackState } from '@@atoms';
+import { deviceIdState, isPlayingState, trackIdState, trackState } from '@@atoms';
 import { ImageLoader } from '@@components';
 import { useSpotify } from '@@hooks';
 import { VolumeUpIcon as VolumeOffIcon } from '@heroicons/react/outline';
@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/solid';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import useSongInfo from 'src/hooks/useSongInfo.hook';
 
 declare global {
@@ -29,6 +29,8 @@ function Player() {
     const [currentTrackId, setCurrentTrackId] = useRecoilState<any>(trackIdState);
     const [isPlaying, setIsPlaying] = useRecoilState<boolean>(isPlayingState);
     const [currentTrack, setTrack] = useRecoilState<any>(trackState);
+
+    const deviceId: any = useRecoilValue(deviceIdState);
 
     const [volume, setVolume] = useState<any>(50);
     const [reapeatState, setRepeatState] = useState<string>(STATE_TRACK[2].value);
@@ -85,7 +87,7 @@ function Player() {
     const debouncedAdjustVolume = useCallback(
         debounce((volume: number) => {
             try {
-                if (!currentTrackId) return;
+                // if (!currentTrackId) return;
                 spotifyApi.setVolume(volume).catch((err) => { })
             } catch (error) {
                 console.log(error);
