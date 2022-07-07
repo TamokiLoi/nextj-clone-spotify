@@ -1,6 +1,7 @@
-import { trackIdState, isPlayingState } from '@@atoms';
+import { isPlayingState, trackIdState, trackState } from '@@atoms';
 import { ImageLoader } from '@@components';
 import { useSpotify } from '@@hooks';
+import { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { millisToMinutesAndSeconds } from '../lib';
 
@@ -13,17 +14,21 @@ function Song({ track, order }: Props) {
     const spotifyApi = useSpotify();
 
     const [currentTrackId, setCurrentTrackId] = useRecoilState<any>(trackIdState);
+    const [currentTrack, setTrack] = useRecoilState<any>(trackState);
     const [isPlaying, setIsPlaying] = useRecoilState<boolean>(isPlayingState);
+    const [player, setPlayer] = useState(undefined);
+    const [device, setDevice] = useState<any>(null);
+    const [devices, setDevices] = useState<[]>([]);
 
     const playSong = async () => {
-        console.log('track', track);
+        setTrack(track);
         setCurrentTrackId(track.id);
         setIsPlaying(true);
-        try {
-            await spotifyApi.play({ uris: [track.uri] })
-        } catch (error) {
-            console.log(error);
-        }
+        // try {
+        //     await spotifyApi.play({ uris: [track.uri], })
+        // } catch (error) {
+        //     console.log(error);
+        // }
     }
 
     return (

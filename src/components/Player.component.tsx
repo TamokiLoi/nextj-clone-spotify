@@ -1,4 +1,4 @@
-import { isPlayingState, trackIdState } from '@@atoms';
+import { isPlayingState, trackIdState, trackState } from '@@atoms';
 import { ImageLoader } from '@@components';
 import { useSpotify } from '@@hooks';
 import { VolumeUpIcon as VolumeOffIcon } from '@heroicons/react/outline';
@@ -9,9 +9,13 @@ import {
     RewindIcon, SwitchHorizontalIcon, VolumeUpIcon
 } from '@heroicons/react/solid';
 import { debounce } from 'lodash';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import useSongInfo from 'src/hooks/useSongInfo.hook';
+
+declare global {
+    interface Window { onSpotifyWebPlaybackSDKReady: any; Spotify: any }
+}
 
 const STATE_TRACK: any = [
     { value: 'context' },
@@ -24,10 +28,15 @@ function Player() {
 
     const [currentTrackId, setCurrentTrackId] = useRecoilState<any>(trackIdState);
     const [isPlaying, setIsPlaying] = useRecoilState<boolean>(isPlayingState);
+    const [currentTrack, setTrack] = useRecoilState<any>(trackState);
 
     const [volume, setVolume] = useState<any>(50);
     const [reapeatState, setRepeatState] = useState<string>(STATE_TRACK[2].value);
     const [shuffleState, setShuffleState] = useState<boolean>(false);
+    const [player, setPlayer] = useState(undefined);
+    const [device, setDevice] = useState(undefined);
+    const [devices, setDevices] = useState<any[]>([]);
+    const [isDevice, setIsDevice] = useState<boolean>(false);
 
     const songInfo: Track = useSongInfo();
 
@@ -38,18 +47,45 @@ function Player() {
                 setVolume(50);
             }
         }
+        if (currentTrackId) {
+            spotifyApi.getMyDevices().then((data) => {
+                console.log(data, 'data')
+                if (data?.body?.devices.length > 1) {
+                    playSong()
+                    const index = data?.body?.devices.findIndex(item => item.name == 'Web Playback SDK');
+                    if (index != -1) {
+                        let deviceIds: any = [data?.body?.devices[index].id]
+                        // if (isDevice) {
+                        //     playSong()
+                        // } else {
+                        //     spotifyApi.transferMyPlayback(deviceIds as any, { play: true })
+                        //         .then((data) => {
+                        //             setIsDevice(true);
+                        //             console.log(data, 'device start');
+                        //         })
+                        // }
+                    }
+                }
+            })
+        }
     }, [currentTrackId]);
 
     useEffect(() => {
         if (volume > 0 && volume < 100) debouncedAdjustVolume(volume);
     }, [volume]);
 
-    useEffect(() => {
-    }, [songInfo]);
+    const playSong = async () => {
+        try {
+            await spotifyApi.play({ uris: [currentTrack.uri], })
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const debouncedAdjustVolume = useCallback(
         debounce((volume: number) => {
             try {
+                if (!currentTrackId) return;
                 spotifyApi.setVolume(volume).catch((err) => { })
             } catch (error) {
                 console.log(error);
@@ -61,16 +97,18 @@ function Player() {
         try {
             spotifyApi.getMyCurrentPlayingTrack()
                 .then((data: any) => {
-                    console.log('now playing', data?.body?.item);
-                    setCurrentTrackId(data?.body?.item?.id);
+                    if (data) {
+                        console.log('now playing', data?.body?.item);
+                        setCurrentTrackId(data?.body?.item?.id);
 
-                    spotifyApi.getMyCurrentPlaybackState()
-                        .then((data: any) => {
-                            console.log('is playing', data?.body);
-                            setIsPlaying(data?.body?.is_playing)
-                            setRepeatState(data?.body?.repeat_state);
-                            setShuffleState(data?.body?.shuffle_state);
-                        })
+                        spotifyApi.getMyCurrentPlaybackState()
+                            .then((data: any) => {
+                                console.log('is playing', data?.body);
+                                setIsPlaying(data?.body?.is_playing)
+                                setRepeatState(data?.body?.repeat_state);
+                                setShuffleState(data?.body?.shuffle_state);
+                            })
+                    }
                 })
         } catch (error) {
             console.log(error);
